@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="relative h-40 bg-cover bg-center" style="background-image: url('https://images.pexels.com/photos/3495060/pexels-photo-3495060.jpeg')">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark/80 to-transparent"></div>
+            <div class="relative h-full flex flex-col items-center justify-center p-6 text-center">
+                <h1 class="text-3xl font-bold text-white">Pomodoro Timer</h1>
+                <p class="text-white/80 mt-2">Focus Better, Work Smarter</p>
+            </div>
+        </div>
+
+        <!-- Timer Display -->
+        <div class="p-6">
+            <div class="flex justify-center mb-8">
+                <div class="relative w-64 h-64">
+                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="#E5E7EB" stroke-width="8"/>
+                        <circle class="progress-ring__circle" cx="50" cy="50" r="45" fill="none" stroke="#3B82F6" 
+                                stroke-width="8" stroke-dasharray="283" stroke-dashoffset="0"/>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <div id="timer" class="text-5xl font-bold text-dark">25:00</div>
+                        <div id="cycle-status" class="text-sm text-gray-500 mt-2">Focus Time</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex justify-center space-x-4 mb-8">
+                <button id="start-btn" class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition">
+                    <i class="fas fa-play mr-2"></i>Start
+                </button>
+                <button id="pause-btn" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition" disabled>
+                    <i class="fas fa-pause mr-2"></i>Pause
+                </button>
+                <button id="reset-btn" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition">
+                    <i class="fas fa-redo mr-2"></i>Reset
+                </button>
+            </div>
+
+            <!-- Cycle Counter -->
+            <div class="text-center mb-6">
+                <span id="cycle-counter" class="text-sm font-medium text-gray-500">Cycle 1/4</span>
+            </div>
+
+            <!-- Settings -->
+            <div class="bg-gray-50 rounded-lg p-4">
+                <h3 class="font-medium text-gray-700 mb-3">Timer Settings</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1">Focus (mins)</label>
+                        <input id="focus-time" type="number" min="1" max="60" value="25" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1">Short Break (mins)</label>
+                        <input id="short-break" type="number" min="1" max="60" value="5" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1">Long Break (mins)</label>
+                        <input id="long-break" type="number" min="1" max="60" value="15" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1">Cycles</label>
+                        <input id="cycles" type="number" min="1" max="10" value="4" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Toggle -->
+            <div class="flex items-center justify-between mt-4">
+                <span class="text-sm text-gray-500">Enable Notifications</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input id="notification-toggle" type="checkbox" checked class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio for notifications -->
+    <audio id="notification-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3"></audio>
+
+    <script>
+        // Timer variables
+        let timer;
+        let timeLeft = 25 * 60; // 25 minutes in seconds
+        let isRunning = false;
+        let currentCycle = 1;
+        let totalCycles = 4;
+        let isFocusTime = true;
+        let notificationEnabled = true;
+
+        // DOM elements
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const cycleStatus = document.getElementById('cycle-status');
+        const cycleCounter = document.getElementById('cycle-counter');
+        const focusTimeInput = document.getElementById('focus-time');
+        const shortBreakInput = document.getElementById('short-break');
+        const longBreakInput = document.getElementById('long-break');
+        const cyclesInput = document.getElementById('cycles');
+        const notificationToggle = document.getElementById('notification-toggle');
+        const notificationSound = document.getElementById('notification-sound');
+        const progressCircle = document.querySelector('.progress-ring__circle');
+
+        // Initialize
+        updateDisplay();
+        loadSettings();
+
+        // Event listeners
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        focusTimeInput.addEventListener('change', updateSettings);
+        shortBreakInput.addEventListener('change', updateSettings);
+        longBreakInput.addEventListener('change', updateSettings);
+        cyclesInput.addEventListener('change', updateSettings);
+        notificationToggle.addEventListener('change', toggleNotifications);
+
+        // Timer functions
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                timer = setInterval(updateTimer, 1000);
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+            }
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timer);
+                isRunning = false;
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            isFocusTime = true;
+            currentCycle = 1;
+            timeLeft = focusTimeInput.value * 60;
+            updateDisplay();
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            updateDisplay();
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                isRunning = false;
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+
+                if (notificationEnabled) {
+                    notificationSound.play();
+                }
+
+                if (isFocusTime) {
+                    if (currentCycle < totalCycles) {
+                        // Short break
+                        isFocusTime = false;
+                        timeLeft = shortBreakInput.value * 60;
+                        cycleStatus.textContent = 'Short Break';
+                        currentCycle++;
+                    } else {
+                        // Long break
+                        isFocusTime = false;
+                        timeLeft = longBreakInput.value * 60;
+                        cycleStatus.textContent = 'Long Break';
+                        currentCycle = 1;
+                    }
+                } else {
+                    // Back to focus time
+                    isFocusTime = true;
+                    timeLeft = focusTimeInput.value * 60;
+                    cycleStatus.textContent = 'Focus Time';
+                }
+
+                updateDisplay();
+                startTimer(); // Auto-start next session
+            }
+        }
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            cycleCounter.textContent = `Cycle ${currentCycle}/${totalCycles}`;
+
+            // Update progress circle
+            const totalTime = isFocusTime ? focusTimeInput.value * 60 : 
+                            (currentCycle === totalCycles ? longBreakInput.value * 60 : shortBreakInput.value * 60);
+            const circumference = 283;
+            const offset = circumference - (timeLeft / totalTime) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        // Settings functions
+        function updateSettings() {
+            totalCycles = parseInt(cyclesInput.value);
+            if (isFocusTime) {
+                timeLeft = focusTimeInput.value * 60;
+            } else {
+                timeLeft = currentCycle === totalCycles ? 
+                          longBreakInput.value * 60 : 
+                          shortBreakInput.value * 60;
+            }
+            updateDisplay();
+            saveSettings();
+        }
+
+        function toggleNotifications() {
+            notificationEnabled = notificationToggle.checked;
+            saveSettings();
+        }
+
+        // Local storage functions
+        function saveSettings() {
+            const settings = {
+                focusTime: focusTimeInput.value,
+                shortBreak: shortBreakInput.value,
+                longBreak: longBreakInput.value,
+                cycles: cyclesInput.value,
+                notifications: notificationToggle.checked
+            };
+            localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('pomodoroSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                focusTimeInput.value = settings.focusTime;
+                shortBreakInput.value = settings.shortBreak;
+                longBreakInput.value = settings.longBreak;
+                cyclesInput.value = settings.cycles;
+                notificationToggle.checked = settings.notifications;
+                notificationEnabled = settings.notifications;
+                timeLeft = focusTimeInput.value * 60;
+                totalCycles = parseInt(cyclesInput.value);
+                updateDisplay();
+            }
+        }
+    </script>
+</body>
+</html>
